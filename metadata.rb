@@ -1,0 +1,8 @@
+name 'BBS-provision-cookbook-mac'
+maintainer 'Dan Tenenbaum'
+maintainer_email 'dtenenba@fredhutch.org'
+license 'Artistic 2.0'
+description 'Installs Bioconductor System Dependencies on mac'
+long_description 'Installs Bioconductor System Dependencies on mac'
+version '0.1.0'
+depends 'cron'

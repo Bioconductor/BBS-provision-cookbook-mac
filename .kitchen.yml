@@ -1,0 +1,35 @@
+# ec2 host/instance name is stored in .kitchen/default-ubuntu-1604.yml
+# last_action should probably be set to create in that file.
+# here is what the whole file looks like:
+# ---
+# server_id: i-xxxxxxx
+# hostname: 12.34.56.78
+# last_action: create
+---
+driver:
+  name: vagrant
+
+
+provisioner:
+  name: chef_zero
+  client_rb:
+      audit_mode: :enabled
+  data_path: test/shared
+  data_bags_path: ./test/data_bags
+  encrypted_data_bag_secret_key_path: ./secret_for_testing_only
+
+
+# Uncomment the following verifier to leverage Inspec instead of Busser (the
+# default verifier)
+# verifier:
+#   name: inspec
+
+platforms:
+# - name: ubuntu-14.04
+ - name: AndrewDryga/vagrant-box-osx
+
+suites:
+  - name: default
+    run_list:
+      - role[bbs_devel_mac]
+    #   - recipe[BBS-provision-cookbook::default]

@@ -1,0 +1,9 @@
+{
+  "id": "github_chef_key",
+  "value": {
+    "encrypted_data": "PBOHGbUarxIbn2ARqUnDdONLAn9ecfCcZdeCvcomjD6Ws7nsX4ptqkoengeG\n5XvkCahYrKRJm0ZHxne/Ri1N0A==\n",
+    "iv": "7RSXgfYZxBRFmlDEv42lhQ==\n",
+    "version": 1,
+    "cipher": "aes-256-cbc"
+  }
+}

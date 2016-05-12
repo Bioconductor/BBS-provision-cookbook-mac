@@ -1,0 +1,2 @@
+# for use by git
+ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $*

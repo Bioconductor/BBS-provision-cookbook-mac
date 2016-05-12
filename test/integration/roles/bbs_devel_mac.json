@@ -1,0 +1,9 @@
+{
+  "name": "bbs_devel_mac",
+  "default_attributes": {
+    "reldev": "devel"
+  },
+  "run_list": [
+    "recipe[BBS-provision-cookbook-mac::default]"
+  ]
+}

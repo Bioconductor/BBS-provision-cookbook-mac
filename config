@@ -1,0 +1,3 @@
+Host bbsvm
+    StrictHostKeyChecking=no
+    UserKnownHostsFile=/dev/null

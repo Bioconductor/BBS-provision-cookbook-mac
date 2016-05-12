@@ -1,0 +1,33 @@
+# copy config.yml.example to config.yml and edit that to match your settings
+# don't overwrite config.yml!
+---
+# r_version should be a string like  R-x.y.z  (example:  R-3.1.0), or one of the following:
+# R-devel R-alpha R-beta R-patched R-rc 
+r_version: R-3.1.1
+# use_devel should be TRUE or FALSE, also indicates whether to pull from trunk
+use_devel: TRUE
+# set to e.g. 3.0
+bioc_version: 3.0
+svn_password: XXXXXXXX
+hostname: bbsvm
+timezone: America/Los_Angeles
+
+## AWS section:
+# see https://github.com/mitchellh/vagrant-aws/#quick-start
+access_key_id:  "XXXXX"
+secret_access_key:  "YYYYY"
+keypair_name:  "bioc-default"
+# if you are using a vpc security group you must
+# specify the group below by its id, NOT its name
+security_groups:  "bioc_default"
+ami:  "ami-ZZZZZ"
+private_key_path:  "/path/to/bioc-default.pem"
+instance_type:  "m1.large"
+tags: {Name: some name}
+# these are optional (subnet_id is required for instance 
+# types that start in a vpc)
+#availability_zone: us-east-1a
+#subnet_id: subnet-d66a05ec # us-east-1a
+
+
+# don't overwrite config.yml!

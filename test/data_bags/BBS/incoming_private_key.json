@@ -1,0 +1,9 @@
+{
+  "id": "incoming_private_key",
+  "value": {
+    "encrypted_data": "/gtOW4nIyoUZwhtfH3FRgwwk9Anlro5KIq7gHaauInnShbowWCdeOVuz4sd7\nv17Vc0Wox02M/9x4oHLQEwxS3Q==\n",
+    "iv": "z0EsvKz17AQRFggByevuRg==\n",
+    "version": 1,
+    "cipher": "aes-256-cbc"
+  }
+}

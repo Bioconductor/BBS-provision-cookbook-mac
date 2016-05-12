@@ -1,0 +1,9 @@
+{
+  "id": "outgoing_private_key",
+  "value": {
+    "encrypted_data": "7wcft+UN58vl5GZerk4pRmi8HMC5Aom1p48KdD+Zg2x91ScCrfokUm0yZ1bp\nwBqR+h2zKFyUE5Qz+orb0RSD4g==\n",
+    "iv": "X47O3eTUGLNcN59PqnfEeg==\n",
+    "version": 1,
+    "cipher": "aes-256-cbc"
+  }
+}
