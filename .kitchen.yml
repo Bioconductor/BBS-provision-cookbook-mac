@@ -26,7 +26,8 @@ provisioner:
 
 platforms:
 # - name: ubuntu-14.04
- - name: AndrewDryga/vagrant-box-osx
+# - name: AndrewDryga/vagrant-box-osx
+ - name: package.box
 
 suites:
   - name: default

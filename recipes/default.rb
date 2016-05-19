@@ -1,4 +1,8 @@
-# __END__
+file "/tmp/foo" do
+  content "haha"
+end
+
+__END__
 # comment out the above but don't remove it
 include_recipe 'cron'
 resources(execute: 'apt-get update').run_action(:run)
