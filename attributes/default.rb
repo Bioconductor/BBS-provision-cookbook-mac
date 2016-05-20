@@ -1,11 +1,15 @@
 default['bioc_version'] = {rel: '3.3', dev: '3.4'}
 default['use_r_devel'] = {rel: false, dev: false}
 default['r_version'] = {rel: '3.3', dev: '3.3'}
-default['desired_hostname'] = {rel: "linux2.bioconductor.org",
-  dev: "linux1.bioconductor.org"}
+default['desired_hostname'] = {rel: "mac2.bioconductor.org",
+  dev: "mac1.bioconductor.org"}
 default['time_zone'] = "America/New_York"
 default['bbs_repos'] = 'https://github.com/Bioconductor/BBS'
 default['bbs_branch'] = 'feature/linux_builders_at_ub'
+default['xquartz_url'] = "https://dl.bintray.com/xquartz/downloads/XQuartz-2.7.9.dmg"
+default['xquartz_name'] = "XQuartz-2.7.9"
+default['mactex_url'] = 'http://mirrors.concertpass.com/tex-archive/systems/mac/mactex/mactex-20150613.pkg'
+default['mactex_checksum'] = 'c5f5b0'
 default['r_url'] = {rel: 'https://cran.rstudio.com/src/base/R-3/R-3.3.0.tar.gz',
   dev: 'https://cran.rstudio.com/src/base/R-3/R-3.3.0.tar.gz'}
 default['r_src_dir'] = {rel: 'R-3.3.0', dev: 'R-3.3.0'}

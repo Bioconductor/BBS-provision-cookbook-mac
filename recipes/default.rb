@@ -1,15 +1,3 @@
-file "/tmp/foo" do
-  content "haha"
-end
-
-__END__
-# comment out the above but don't remove it
-include_recipe 'cron'
-resources(execute: 'apt-get update').run_action(:run)
-
-
-package "language-pack-en"
-
 if node["reldev"] == "devel"
   reldev = :dev
 elsif node["reldev"] == "release"
@@ -18,73 +6,46 @@ else
   raise "are the bbs_devel and bbs_release roles defined?"
 end
 
-
 bioc_version = node['bioc_version'][reldev]
 r_version = node['r_version'][reldev]
-execute "change time zone" do
-    user "root"
-    command "rm -f /etc/localtime && ln -sf /usr/share/zoneinfo/#{node['time_zone']} /etc/localtime"
-    not_if "file /etc/localtime | grep -q #{node['time_zone']}"
+
+execute "set time zone" do
+  command "systemsetup -settimezone #{node['time_zone']}"
+  not_if "systemsetup -gettimezone|grep -q #{node['time_zone']}"
 end
 
-control_group 'time zone' do
-  control 'should be set properly' do
-    describe command("file /etc/localtime") do
-      its(:stdout) { should_not match /UTC|GMT/}
-    end
-  end
+execute "set host name" do
+  command "hostname -s #{node['desired_hostname'][reldev]}"
+  not_if "hostname | grep -q #{node['desired_hostname'][reldev]}"
 end
-
-
-
-file "/etc/hostname" do
-  content node['desired_hostname'][reldev]
-  mode "0644"
-end
-
-execute "set hostname" do
-  command "hostname $(cat /etc/hostname)"
-  not_if "hostname | grep -q $(cat /etc/hostname)"
-end
-
-
-
-execute "fix ec2 hostname bs" do
-  command %Q(echo "127.0.0.1 $(hostname)" >> /etc/hosts)
-  not_if "grep -q $(hostname) /etc/hosts"
-end
-
 
 user "biocbuild" do
     supports :manage_home => true
-    home "/home/biocbuild"
+    home "/Users/biocbuild"
     shell "/bin/bash"
     action :create
 end
 
-
 control_group 'biocbuild' do
   control 'biocbuild user' do
+    describe command("dscl . -ls /Users") do
+      its(:stdout) { should match /biocbuild/}
+    end
     it 'should exist' do
-      expect(file('/etc/passwd')).to contain(/biocbuild/)
-      expect(file('/home/biocbuild')).to exist
-      expect(file('/home/biocbuild')).to be_directory
-      expect(file('/home/biocbuild')).to be_owned_by('biocbuild')
+      expect(file('/Users/biocbuild')).to exist
+      expect(file('/Users/biocbuild')).to be_directory
+      expect(file('/Users/biocbuild')).to be_owned_by('biocbuild')
     end
   end
 end
 
-
-bbsdir = "/home/biocbuild/bbs-#{node['bioc_version'][reldev]}-bioc"
+bbsdir = "/Users/biocbuild/bbs-#{node['bioc_version'][reldev]}-bioc"
 
 directory bbsdir do
     owner "biocbuild"
-    group "biocbuild"
     mode "0755"
     action :create
 end
-
-
 
 control_group "bbsdir group" do
   control bbsdir do
@@ -96,53 +57,25 @@ control_group "bbsdir group" do
   end
 end
 
-
-directory "/home/biocbuild/.ssh" do
+directory "/Users/biocbuild/.ssh" do
     owner "biocbuild"
-    group "biocbuild"
     mode "0755"
     action :create
 end
 
-directory "/home/biocbuild/.BBS" do
+directory "/Users/biocbuild/.BBS" do
     owner "biocbuild"
-    group "biocbuild"
     mode "0755"
     action :create
 end
 
-%w(log NodeInfo svninfo meat R).each do |dir|
+%w(log NodeInfo svninfo meat STAGE2_tmp).each do |dir|
     directory "#{bbsdir}/#{dir}" do
         owner "biocbuild"
-        group "biocbuild"
         mode "0755"
         action :create
     end
 end
-
-%W(src public_html public_html/BBS public_html/BBS/#{node['bioc_version'][reldev]}
-public_html/BBS/#{node['bioc_version'][reldev]}/bioc
-public_html/BBS/#{node['bioc_version'][reldev]}/data-experiment).each do |dir|
-    directory "/home/biocbuild/#{dir}" do
-        owner "biocbuild"
-        group "biocbuild"
-        mode "0755"
-        action :create
-    end
-end
-
-%W(bioc data-experiment).each do |repo|
-  %W(nodes OUTGOING report src svninfo).each do |dir|
-    directory "/home/biocbuild/public_html/BBS/#{node['bioc_version'][reldev]}/#{repo}/#{dir}" do
-      owner "biocbuild"
-      group "biocbuild"
-      mode "0755"
-      action :create
-    end
-  end
-end
-
-
 
 # data experiment
 dataexpdir = bbsdir.sub(/bioc$/, "data-experiment")
@@ -152,28 +85,13 @@ directory dataexpdir do
   owner "biocbuild"
 end
 
-
 %w(log NodeInfo svninfo meat STAGE2_tmp).each do |dir|
     directory "#{dataexpdir}/#{dir}" do
         owner "biocbuild"
-        group "biocbuild"
         mode "0755"
         action :create
     end
 end
-
-
-
-package "subversion"
-
-control_group 'package subversion group' do
-  control 'package subversion' do
-    it 'should be installed' do
-      expect(package('subversion')).to be_installed
-    end
-  end
-end
-
 
 
 base_url = "https://hedgehog.fhcrc.org/bioconductor"
@@ -188,81 +106,7 @@ svn_meat_url = "#{base_url}/#{branch}/madman/Rpacks"
 
 dataexp_meat_url = "#{base_data_url}/#{branch}/experiment/pkgs"
 
-
-## FIXME! These svn co commands do NOT 'seed' the svn auth system so that
-## further actions (e.g. svn up) don't require authentication. Need to figure that out...
-## or change build system code to specify username/password (readonly/readonly is ok....)
-## try suggestions in
-# https://stackoverflow.com/questions/5062232/svn-wont-cache-credentials
-
-execute 'shallow MEAT0 checkout' do
-  command "svn co --depth empty --non-interactive --username readonly --password readonly #{svn_meat_url} MEAT0"
-  cwd bbsdir
-  user 'biocbuild'
-  not_if {File.exists? ("#{bbsdir}/MEAT0/.svn")}
-end
-
-execute 'shallow MEAT0 checkout (data-experiment)' do
-  command "svn co --depth empty --non-interactive --username readonly --password readonly #{dataexp_meat_url} MEAT0"
-  cwd dataexpdir
-  user 'biocbuild'
-  not_if {File.exists? ("#{dataexpdir}/MEAT0/.svn")}
-end
-
-
-control_group 'MEAT0 checkout group' do
-  control 'MEAT0 checkout' do
-    it 'should have .svn dir' do
-      expect(file("#{bbsdir}/MEAT0/.svn")).to exist
-      expect(file("#{bbsdir}/MEAT0/.svn")).to be_directory
-      expect(file("#{bbsdir}/MEAT0/.svn")).to be_owned_by "biocbuild"
-    end
-  end
-end
-
-
-
-
-%w(ack-grep libnetcdf-dev libhdf5-serial-dev sqlite libfftw3-dev libfftw3-doc
-    libopenbabel-dev fftw3 fftw3-dev pkg-config xfonts-100dpi xfonts-75dpi
-    libopenmpi-dev openmpi-bin mpi-default-bin openmpi-common
-    libexempi3 openmpi-doc texlive-science python-mpi4py
-    texlive-bibtex-extra texlive-fonts-extra fortran77-compiler gfortran
-    libreadline-dev libx11-dev libxt-dev texinfo apache2 libxml2-dev
-    libcurl4-openssl-dev libcurl4-nss-dev xvfb  libpng12-dev
-    libjpeg62-dev libcairo2-dev libcurl4-gnutls-dev libtiff5-dev
-    tcl8.5-dev tk8.5-dev libicu-dev libgsl2 libgsl0-dev
-    libgtk2.0-dev gcj-4.8 openjdk-8-jdk texlive-latex-extra
-    texlive-fonts-recommended pandoc libgl1-mesa-dev libglu1-mesa-dev
-    htop libgmp3-dev imagemagick unzip libhdf5-dev libncurses-dev libbz2-dev
-    libxpm-dev liblapack-dev libv8-3.14-dev libperl-dev
-    libarchive-extract-perl libfile-copy-recursive-perl libcgi-pm-perl tabix
-    libdbi-perl libdbd-mysql-perl ggobi libgtkmm-2.4-dev libssl-dev byacc
-    automake libmysqlclient-dev postgresql-server-dev-all pandoc-citeproc
-    firefox graphviz python-pip libxml-simple-perl
-).each do |pkg|
-    package pkg do
-        action :install
-    end
-end
-
-package 'libnetcdf-dev'
-
-# Some packages are not installed by the above, even though the output
-# suggests they are. See
-# https://discourse.chef.io/t/package-not-installed-by-package-resource-on-ubuntu/8456
-# So explicitly install using apt-get:
-
-# comment this out for now for testing
-# execute "install libnetcdf-dev" do
-#   command "apt-get install -y libnetcdf-dev"
-#   not_if "dpkg --get-selections libnetcdf-dev|grep -q libnetcdf-dev"
-# end
-
-package 'git'
-
-
-
+easy_install_package "pip"
 
 execute "install jupyter" do
   command "pip install jupyter"
@@ -304,6 +148,42 @@ execute "build clustalo" do
   not_if "which clustalo | grep -q clustalo"
   cwd "/tmp"
 end
+
+#require 'dmg'
+include_recipe 'dmg'
+
+dmg_package "Xquartz" do
+  source node['xquartz_url']
+  volumes_dir node['xquartz_name']
+  type 'pkg'
+  not_if {File.exists? "/Applications/Utilities/XQuartz.app"}
+end
+
+# package node['mactex_url']
+
+remote_file "/tmp/#{node['mactex_url'].split('/').last}" do
+  source node['mactex_url']
+  #checksum node['mactex_checksum']
+  use_conditional_get true
+  use_etag true
+  use_last_modified true
+  # why is the not_if necessary?
+  not_if {File.exists? "/tmp/#{node['mactex_url'].split('/').last}"}
+end
+
+execute "install MacTex" do
+  command "sudo installer -pkg /tmp/#{node['mactex_url'].split('/').last} -target /"
+  not_if {File.exists? "/usr/texbin/pdflatex"}
+end
+
+
+
+__END__
+
+
+
+
+
 
 git "/home/biocbuild/BBS" do
   repository node['bbs_repos']
@@ -683,3 +563,30 @@ end
 
 # FIXME - set up pkgbuild stuff if this is a devel builder
 # github_chef_key (from data bag)
+
+
+
+%w(ack-grep libnetcdf-dev libhdf5-serial-dev sqlite libfftw3-dev libfftw3-doc
+    libopenbabel-dev fftw3 fftw3-dev pkg-config xfonts-100dpi xfonts-75dpi
+    libopenmpi-dev openmpi-bin mpi-default-bin openmpi-common
+    libexempi3 openmpi-doc texlive-science python-mpi4py
+    texlive-bibtex-extra texlive-fonts-extra fortran77-compiler gfortran
+    libreadline-dev libx11-dev libxt-dev texinfo apache2 libxml2-dev
+    libcurl4-openssl-dev libcurl4-nss-dev xvfb  libpng12-dev
+    libjpeg62-dev libcairo2-dev libcurl4-gnutls-dev libtiff5-dev
+    tcl8.5-dev tk8.5-dev libicu-dev libgsl2 libgsl0-dev
+    libgtk2.0-dev gcj-4.8 openjdk-8-jdk texlive-latex-extra
+    texlive-fonts-recommended pandoc libgl1-mesa-dev libglu1-mesa-dev
+    htop libgmp3-dev imagemagick unzip libhdf5-dev libncurses-dev libbz2-dev
+    libxpm-dev liblapack-dev libv8-3.14-dev libperl-dev
+    libarchive-extract-perl libfile-copy-recursive-perl libcgi-pm-perl tabix
+    libdbi-perl libdbd-mysql-perl ggobi libgtkmm-2.4-dev libssl-dev byacc
+    automake libmysqlclient-dev postgresql-server-dev-all pandoc-citeproc
+    firefox graphviz python-pip libxml-simple-perl
+).each do |pkg|
+    package pkg do
+        action :install
+    end
+end
+
+package 'libnetcdf-dev'
