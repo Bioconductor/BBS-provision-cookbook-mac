@@ -26,6 +26,11 @@ user "biocbuild" do
     action :create
 end
 
+execute "make biocbuild an admin" do
+  command "dseditgroup -o edit -a biocbuild -t user admin"
+  not_if "id biocbuild|grep -q '\(admin\)'"
+end
+
 control_group 'biocbuild' do
   control 'biocbuild user' do
     describe command("dscl . -ls /Users") do
@@ -176,6 +181,50 @@ execute "install MacTex" do
   not_if {File.exists? "/usr/texbin/pdflatex"}
 end
 
+git "/Users/biocbuild/BBS" do
+  repository node['bbs_repos']
+  revision node['bbs_branch']
+  user 'biocbuild'
+end
+
+execute "build chown-rootadmin" do
+  cwd "/Users/biocbuild/BBS/utils"
+  command "gcc chown-rootadmin.c -o chown-rootadmin &&  chown root:admin chown-rootadmin && sudo chmod 4750 chown-rootadmin"
+  not_if {File.exists? "/Users/biocbuild/BBS/utils/chown-rootadmin"}
+end
+
+remote_file "/tmp/#{node['r_url'][reldev].split('/').last}" do
+    source node['r_url'][reldev]
+    not_if {File.exists? "/tmp/#{node['r_url'][reldev].split('/').last}"}
+end
+
+execute "install R" do
+    command "installer -pkg /tmp/#{node['r_url'][reldev].split('/').last} -target /"
+    not_if {File.exists? "/Library/Frameworks/R.framework"}
+end
+
+execute "modify flags" do
+  user "biocbuild"
+  cwd "/Library/Frameworks/R.framework/Versions/Current/Resources/etc"
+  command "/Users/biocbuild/BBS/utils/mavericks-R-fix-flags.sh"
+  not_if {File.exists? "/Library/Frameworks/R.framework/Versions/Current/Resources/etc/Makeconf.original"}
+end
+
+execute "install Bioconductor" do
+  user "biocbuild"
+  command %Q(echo 'source("https://bioconductor.org/biocLite.R")' | R -q --slave)
+  not_if {File.exists? "/Library/Frameworks/R.framework/Versions/Current/Resources/library/BiocInstaller"}
+end
+
+
+if reldev == :dev
+  execute "useDevel" do
+    user "biocbuild"
+    command %Q(echo "BiocInstaller::useDevel()" | R -q --slave )
+    not_if %Q(echo "cat(as.character(BiocInstaller:::BIOC_VERSION))"|R -q --slave | grep -q #{node['bioc_version'][reldev]})
+  end
+end
+
 
 
 __END__
@@ -185,11 +234,6 @@ __END__
 
 
 
-git "/home/biocbuild/BBS" do
-  repository node['bbs_repos']
-  revision node['bbs_branch']
-  user 'biocbuild'
-end
 
 directory "#{bbsdir}/rbuild" do
   action :create

@@ -10,8 +10,8 @@ default['xquartz_url'] = "https://dl.bintray.com/xquartz/downloads/XQuartz-2.7.9
 default['xquartz_name'] = "XQuartz-2.7.9"
 default['mactex_url'] = 'http://mirrors.concertpass.com/tex-archive/systems/mac/mactex/mactex-20150613.pkg'
 default['mactex_checksum'] = 'c5f5b0'
-default['r_url'] = {rel: 'https://cran.rstudio.com/src/base/R-3/R-3.3.0.tar.gz',
-  dev: 'https://cran.rstudio.com/src/base/R-3/R-3.3.0.tar.gz'}
+default['r_url'] = {rel: 'https://cran.rstudio.com/bin/macosx/R-3.3.0.pkg',
+  dev: 'https://cran.rstudio.com/bin/macosx/R-3.3.0.pkg'}
 default['r_src_dir'] = {rel: 'R-3.3.0', dev: 'R-3.3.0'}
 default['root_url'] = {dev: "https://root.cern.ch/download/root_v5.34.36.source.tar.gz",
   rel: "https://root.cern.ch/download/root_v5.34.36.source.tar.gz"}
