@@ -210,7 +210,7 @@ execute "modify flags" do
   not_if {File.exists? "/Library/Frameworks/R.framework/Versions/Current/Resources/etc/Makeconf.original"}
 end
 
-execute "install Bioconductor" do
+execute "install BiocInstaller" do
   user "biocbuild"
   command %Q(echo 'source("https://bioconductor.org/biocLite.R")' | R -q --slave)
   not_if {File.exists? "/Library/Frameworks/R.framework/Versions/Current/Resources/library/BiocInstaller"}
@@ -226,197 +226,70 @@ if reldev == :dev
 end
 
 
+autoconf_tarball = node['autoconf_url'].split('/').last
+autoconf_dir = autoconf_tarball.sub(".tar.gz", "")
 
-__END__
-
-
-
-
-
-
-
-directory "#{bbsdir}/rbuild" do
-  action :create
-  owner 'biocbuild'
+remote_file "/tmp/#{autoconf_tarball}" do
+  source node['autoconf_url']
 end
 
-remote_file "#{bbsdir}/rbuild/#{node['r_url'][reldev].split("/").last}" do
-  source node['r_url'][reldev]
-  owner 'biocbuild'
+execute "install autoconf" do
+  command "tar zxf #{autoconf_tarball} && cd #{autoconf_dir} && ./configure && make && make install"
+  cwd "/tmp"
+  not_if "which autoconf | grep -q autoconf"
 end
 
-execute "untar R" do
-  command "tar zxf #{bbsdir}/rbuild/#{node['r_url'][reldev].split("/").last}"
-  user 'biocbuild'
-  cwd "#{bbsdir}/rbuild"
-  not_if {File.exists? "#{bbsdir}/rbuild/#{node['r_src_dir'][reldev]}"}
+automake_tarball = node['automake_url'].split('/').last
+automake_dir = automake_tarball.sub(".tar.gz", "")
+
+remote_file "/tmp/#{automake_tarball}" do
+  source node['automake_url']
 end
 
-
-execute "build R" do
-  command "#{bbsdir}/rbuild/#{node['r_src_dir'][reldev]}/configure --enable-R-shlib && make -j"
-  user 'biocbuild'
-  cwd "#{bbsdir}/R"
-  not_if {File.exists? "#{bbsdir}/R/Makefile"}
+execute "install automake" do
+  command "tar zxf #{automake_tarball} && cd #{automake_dir} && ./configure && make && make install"
+  cwd "/tmp"
+  not_if "which automake | grep -q automake"
 end
 
-execute "set R flags" do
-  command "/home/biocbuild/BBS/utils/R-fix-flags.sh"
-  user "biocbuild"
-  cwd "#{bbsdir}/R/etc"
-  not_if {File.exists? "#{bbsdir}/R/etc/Makeconf.original"}
-end
-
-execute "set up arp alias" do
-  command %Q(echo 'alias arp="export PATH=$PATH:$HOME/bbs-#{node['bioc_version'][reldev]}-bioc/R/bin"' >> /home/biocbuild/.bash_profile)
-  cwd "/home/biocbuild"
-  user "biocbuild"
-  not_if "grep -q arp /home/biocbuild/.bash_profile"
-end
-
-execute "install BiocInstaller" do
-  command %Q(#{bbsdir}/R/bin/R -e "source('https://bioconductor.org/biocLite.R')")
-  user "biocbuild"
-  not_if {File.exists? "#{bbsdir}/R/library/BiocInstaller"}
-end
-
-if reldev == :dev
-  execute "run useDevel()" do
-    command %Q(#{bbsdir}/R/bin/R -e "BiocInstaller::useDevel()")
-    user "biocbuild"
-    not_if %Q(#{bbsdir}/R/bin/R --slave -q -e "BiocInstaller:::IS_USER" | grep -q FALSE)
-  end
-end
-
-link "/var/www/html/BBS" do
-    to "/home/biocbuild/public_html/BBS"
-end
-
-
-link "/usr/bin/aclocal-1.14" do
-  to "/usr/bin/aclocal-1.15"
-end
-
-# biocadmin
-
-user "biocadmin" do
-    supports :manage_home => true
-    home "/home/biocadmin"
-    shell "/bin/bash"
-    action :create
-end
-
-
-%W(bin InstalledPkgs tmp rbuild
-PACKAGES/#{bioc_version}
-PACKAGES/#{bioc_version}/biocViews
-PACKAGES/#{bioc_version}/bioc
-PACKAGES/#{bioc_version}/bioc/src/contrib
-PACKAGES/#{bioc_version}/bioc/bin/windows/contrib/#{r_version}
-PACKAGES/#{bioc_version}/bioc/bin/macosx/contrib/#{r_version}
-PACKAGES/#{bioc_version}/bioc/bin/macosx/mavericks/contrib/#{r_version}
-PACKAGES/#{bioc_version}/data/experiment
-PACKAGES/#{bioc_version}/data/experiment/src/contrib
-PACKAGES/#{bioc_version}/data/experiment/bin/windows/contrib/#{r_version}
-PACKAGES/#{bioc_version}/data/experiment/bin/macosx/contrib/#{r_version}
-PACKAGES/#{bioc_version}/data/experiment/bin/macosx/mavericks/contrib/#{r_version}
-PACKAGES/#{bioc_version}/data/annotation
-PACKAGES/#{bioc_version}/data/annotation/src/contrib
-PACKAGES/#{bioc_version}/data/annotation/bin/windows/contrib/#{r_version}
-PACKAGES/#{bioc_version}/data/annotation/bin/macosx/contrib/#{r_version}
-PACKAGES/#{bioc_version}/data/annotation/bin/macosx/mavericks/contrib/#{r_version}
-PACKAGES/#{bioc_version}/extra
-PACKAGES/#{bioc_version}/extra/src/contrib
-PACKAGES/#{bioc_version}/extra/bin/windows/contrib/#{r_version}
-PACKAGES/#{bioc_version}/extra/bin/macosx/contrib/#{r_version}
-PACKAGES/#{bioc_version}/extra/bin/macosx/mavericks/contrib/#{r_version}
-cron.log/#{bioc_version}
-).each do |dir|
-  directory "/home/biocadmin/#{dir}" do
-    owner "biocadmin"
-    action :create
-    recursive true
-  end
-end
-
-%W(BiocInstaller biocViews DynDoc graph).each do |pkg|
-  directory "/home/biocadmin/InstalledPkgs/#{pkg}" do
-    action :create
-    owner 'biocadmin'
-  end
-  subversion "/home/biocadmin/InstalledPkgs/#{pkg}" do
-    user "biocadmin"
-    svn_username "readonly"
-    svn_password "readonly"
-    repository "https://hedgehog.fhcrc.org/bioconductor/trunk/madman/Rpacks/#{pkg}"
-    action :sync
-  end
-end
-
-git "/home/biocadmin/BBS" do
-  user "biocadmin"
-  repository node['bbs_repos']
-  revision node['bbs_branch']
-end
-
-link "/home/biocadmin/manage-BioC-repos"  do
-  to "/home/biocadmin/BBS/manage-BioC-repos"
-  owner "biocadmin"
-end
-
-%W(bioc data/annotation data/experiment extra).each do |dir|
-  link "/home/biocadmin/PACKAGES/#{bioc_version}/#{dir}/bin/windows64" do
-    to "/home/biocadmin/PACKAGES/#{bioc_version}/#{dir}/bin/windows"
-    owner "biocadmin"
-  end
-end
-
-# install R
-# install knitcitations
-# install all pkgs in ~/InstalledPkgs
-
-
-
-
-remote_file "/home/biocadmin/rbuild/#{node['r_url'][reldev].split("/").last}" do
-  source node['r_url'][reldev]
-  owner 'biocadmin'
-end
-
-execute "untar R" do
-  command "tar zxf /home/biocadmin/rbuild/#{node['r_url'][reldev].split("/").last} && mv #{node['r_src_dir'][reldev]} /home/biocadmin/R-#{r_version}"
-  user 'biocadmin'
-  cwd "/home/biocadmin/rbuild"
-  not_if {File.exists? "/home/biocadmin/R-#{r_version}"}
-end
-
-
-
-execute "build R" do
-  command "./configure --enable-R-shlib && make -j"
-  user 'biocadmin'
-  cwd "/home/biocadmin/R-#{r_version}/"
-  not_if {File.exists? "/home/biocadmin/R-#{r_version}/config.log"}
-end
-
-# should really install these from ~/InstalledPkgs but this is easier.
-execute "install pkgs needed by biocadmin" do
-  user 'biocadmin'
-  command %Q(/home/biocadmin/R-#{r_version}/bin/R -e "source('https://bioconductor.org/biocLite.R');biocLite(c('biocViews','DynDoc','graph','knitcitations'))")
-  not_if {File.exists? "/home/biocadmin/R-#{r_version}/library/knitcitations"}
-end
-
-link "/home/biocadmin/bin/R-#{r_version}" do
-  owner 'biocadmin'
-  to "/home/biocadmin/R-#{r_version}/bin/R"
-end
-
-
-# ROOT
 
 remote_file "/tmp/#{node['root_url'][reldev].split("/").last}" do
   source node['root_url'][reldev]
 end
+
+execute "install ROOT" do
+  command "tar zxf /tmp/#{node['root_url'][reldev].split('/').last} -C /usr/local/"
+  not_if {File.exists? "/usr/local/root"}
+end
+
+execute "add root to path" do
+  command %Q(echo 'export PATH=\$PATH:/usr/local/root/bin' >> /etc/profile)
+  not_if "grep -q /usr/local/root/bin /etc/profile"
+end
+
+execute "add rootsys" do
+  command %Q(echo "export ROOTSYS=/usr/local/root" >> /etc/profile)
+  not_if "grep -q ROOTSYS /etc/profile"
+
+end
+
+execute "add root to dyld_library_path" do
+  command %Q(echo 'export DYLD_LIBRARY_PATH=\$DYLD_LIBRARY_PATH:\$ROOTSYS/lib' >> /etc/profile)
+  not_if "grep -q DYLD_LIBRARY_PATH /etc/profile" # FIXME refine this a bit?
+end
+
+execute "add root to ld_library_path" do
+  command %Q(echo 'export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:\$ROOTSYS/lib' >> /etc/profile)
+  not_if "grep LD_LIBRARY_PATH /etc/profile| grep -qv DYLD" # FIXME refine this a bit?
+end
+
+
+
+__END__
+
+
+# ROOT
+
 
 directory "/tmp/rootbuild" do
   action :create
