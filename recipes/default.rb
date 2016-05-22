@@ -283,54 +283,35 @@ execute "add root to ld_library_path" do
   not_if "grep LD_LIBRARY_PATH /etc/profile| grep -qv DYLD" # FIXME refine this a bit?
 end
 
+# FIXME xps now installs but does not build - plugin issue - contact mtr
+
+dmg_package node['jags_dir'] do
+  source node['jags_url']
+  volumes_dir node['jags_dir']
+  type 'mpkg'
+  dmg_name node['jags_dir']
+  not_if {File.exists? "/usr/local/bin/jags"}
+end
+
+dmg_package node['libsbml_packagename'] do
+  source node['libsbml_url']
+  volumes_dir node['libsbml_dir']
+  type 'pkg'
+  dmg_name node['libsbml_packagename']
+  not_if {File.exists? "/usr/local/include/sbml"}
+end
+
+execute "add libsbml.pc to PKG_CONFIG_PATH" do
+  command "echo 'export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig' >> /etc/profile"
+  not_if "grep -q /usr/local/lib/pkgconfig /etc/profile"
+end
+
+# FIXME - rsbml still does not build. contact mtr
+
 
 
 __END__
 
-
-# ROOT
-
-
-directory "/tmp/rootbuild" do
-  action :create
-end
-
-execute "build root" do
-  cwd "/tmp/rootbuild"
-  command "tar zxf /tmp/#{node['root_url'][reldev].split("/").last} && cd root && ./configure --prefix=/usr/local/root && make && make install"
-  not_if {File.exists? "/tmp/rootbuild/root"}
-end
-
-
-file "/etc/ld.so.conf.d/ROOT.conf" do
-  content "/usr/local/root/lib/root"
-end
-
-execute "ldconfig" do
-  command "ldconfig"
-end
-
-execute "add root to path" do
-  command "echo 'export PATH=$PATH:/usr/local/root/bin' >> /etc/profile"
-  not_if "grep -q /usr/local/root/bin /etc/profile"
-end
-
-execute "add rootsys" do
-  command "echo 'export ROOTSYS=/usr/local/root' >> /etc/profile"
-  not_if "grep -q ROOTSYS /etc/profile"
-end
-
-# jags
-
-remote_file "/tmp/#{node['jags_url'][reldev].split('/').last}" do
-  source node['jags_url'][reldev]
-end
-
-execute "build jags" do
-  command "tar zxf #{node['jags_url'][reldev].split('/').last} && cd #{node['jags_dir'][reldev]} && ./configure && make && make install"
-  cwd "/tmp"
-  not_if {File.exists? "/tmp/#{node['jags_dir'][reldev]}/config.log"}
-end
 
 # libsbml
 

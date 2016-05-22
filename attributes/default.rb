@@ -17,11 +17,11 @@ default['automake_url'] = 'https://ftp.gnu.org/gnu/automake/automake-1.14.1.tar.
 default['r_src_dir'] = {rel: 'R-3.3.0', dev: 'R-3.3.0'}
 default['root_url'] = {dev: "https://s3.amazonaws.com/bioc-root-binary/mac-root-binary.tar.gz",
   rel: "https://s3.amazonaws.com/bioc-root-binary/mac-root-binary.tar.gz"}
-default['jags_url'] = {dev: "http://iweb.dl.sourceforge.net/project/mcmc-jags/JAGS/4.x/Source/JAGS-4.2.0.tar.gz",
-  rel: "http://iweb.dl.sourceforge.net/project/mcmc-jags/JAGS/4.x/Source/JAGS-4.2.0.tar.gz"}
-default['jags_dir'] = {dev: "JAGS-4.2.0", rel: "JAGS-4.2.0"}
-default['libsbml_url']  = "https://s3.amazonaws.com/linux-provisioning/libSBML-5.10.2-core-src.tar.gz"
-default['libsbml_dir'] = "libsbml-5.10.2"
+default['jags_url'] = "http://iweb.dl.sourceforge.net/project/mcmc-jags/JAGS/4.x/Mac%20OS%20X/JAGS-4.2.0.dmg"
+default['jags_dir'] = "JAGS-4.2.0"
+default['libsbml_url']  = "http://pilotfiber.dl.sourceforge.net/project/sbml/libsbml/5.13.0/stable/Mac%20OS%20X/libsbml-5.13.0-libxml2-macosx-elcapitan.dmg"
+default['libsbml_dir'] = "libsbml-5.13.0-libxml2"
+default['libsbml_packagename'] = 'libSBML-5.13.0-libxml2-elcapitan'
 default['vienna_rna_url'] = "https://www.tbi.univie.ac.at/RNA/download/package=viennarna-src-tbi&flavor=sourcecode&dist=1_8_x&arch=src&version=1.8.5"
 default['vienna_rna_dir'] = "ViennaRNA-1.8.5"
 default['vep_url'] = {dev: "https://codeload.github.com/Ensembl/ensembl-tools/zip/release/84",
