@@ -283,7 +283,10 @@ execute "add root to ld_library_path" do
   not_if "grep LD_LIBRARY_PATH /etc/profile| grep -qv DYLD" # FIXME refine this a bit?
 end
 
-# FIXME xps now installs but does not build - plugin issue - contact mtr
+link "/etc/root" do
+  to '/usr/local/root/etc'
+end
+
 
 dmg_package node['jags_dir'] do
   source node['jags_url']
