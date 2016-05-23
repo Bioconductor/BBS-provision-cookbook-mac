@@ -296,6 +296,11 @@ dmg_package node['jags_dir'] do
   not_if {File.exists? "/usr/local/bin/jags"}
 end
 
+__END__
+
+# FIXME don't install libsbml until we have sorted things out so rsbml builds
+
+
 dmg_package node['libsbml_packagename'] do
   source node['libsbml_url']
   volumes_dir node['libsbml_dir']
