@@ -19,6 +19,7 @@ default['root_url'] = {dev: "https://s3.amazonaws.com/bioc-root-binary/mac-root-
   rel: "https://s3.amazonaws.com/bioc-root-binary/mac-root-binary.tar.gz"}
 default['jags_url'] = "http://iweb.dl.sourceforge.net/project/mcmc-jags/JAGS/4.x/Mac%20OS%20X/JAGS-4.2.0.dmg"
 default['jags_dir'] = "JAGS-4.2.0"
+default['pkgconfig_url'] = "http://r.research.att.com/libs/pkg-config-0.25-darwin9-bin3.tar.gz"
 default['libsbml_url']  = "http://pilotfiber.dl.sourceforge.net/project/sbml/libsbml/5.13.0/stable/Mac%20OS%20X/libsbml-5.13.0-libxml2-macosx-elcapitan.dmg"
 default['libsbml_dir'] = "libsbml-5.13.0-libxml2"
 default['libsbml_packagename'] = 'libSBML-5.13.0-libxml2-elcapitan'

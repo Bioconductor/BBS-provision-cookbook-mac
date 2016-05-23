@@ -309,7 +309,23 @@ execute "add libsbml.pc to PKG_CONFIG_PATH" do
   not_if "grep -q /usr/local/lib/pkgconfig /etc/profile"
 end
 
+
+remote_file "/tmp/#{node['pkgconfig_url'].split('/').last}" do
+  source node['pkgconfig_url']
+end
+
+execute "install pkg-config" do
+  command "tar xf /tmp/#{node['pkgconfig_url'].split('/').last} -C /"
+  not_if {File.exists? "/usr/local/bin/pkg-config"}
+end
+
+
+# FIXME R_TEXI2DVICMD=/Users/biocbuild/BBS/utils/mactexi2dvi
+
+# FIXME - gfortran
+
 # FIXME - rsbml still does not build. contact mtr
+# FIXME - see BBS/Docs about necessary tweaks to libsbml.dylib, and other stuff you need to do
 
 # FIXME - come back to Vienna RNA later
 
