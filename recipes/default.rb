@@ -296,7 +296,6 @@ dmg_package node['jags_dir'] do
   not_if {File.exists? "/usr/local/bin/jags"}
 end
 
-__END__
 
 # FIXME don't install libsbml until we have sorted things out so rsbml builds
 
@@ -314,16 +313,47 @@ execute "add libsbml.pc to PKG_CONFIG_PATH" do
   not_if "grep -q /usr/local/lib/pkgconfig /etc/profile"
 end
 
-
-remote_file "/tmp/#{node['pkgconfig_url'].split('/').last}" do
-  source node['pkgconfig_url']
+execute "tweak libsbml dylib" do
+  cwd "/usr/local/lib"
+  command %Q(install_name_tool -id "/usr/local/lib/libsbml.5.dylib" libsbml.5.dylib)
+  # FIXME - this execute seems to be skipped mistakenly due to not_if even when grep returns 0
+  # does not seem to hurt (or take long) to do this repeatedly...
+  #not_if "otool -D /usr/local/lib/libsbml.5.dylib|grep -q /usr/local/lib"
 end
 
-execute "install pkg-config" do
-  command "tar xf /tmp/#{node['pkgconfig_url'].split('/').last} -C /"
-  not_if {File.exists? "/usr/local/bin/pkg-config"}
+
+for simon_tar in node['simon_tars']
+  tarball, guardfile = simon_tar
+  remote_file "/tmp/#{tarball}" do
+    source "http://r.research.att.com/libs/#{tarball}"
+  end
+  execute "install #{tarball}" do
+    command "tar zxf /tmp/#{tarball} -C /"
+    not_if {File.exists? guardfile}
+  end
 end
 
+
+remote_file "/tmp/#{node['gtk_url'].split('/').last}" do
+  source node['gtk_url']
+end
+
+execute "install gtk" do
+  command "installer -pkg /tmp/#{node['gtk_url'].split('/').last} -target /"
+   not_if {File.exists? "/Library/Frameworks/GTK+.framework"}
+end
+
+
+execute "add GTK to PKG_CONFIG_PATH" do
+  command %Q(echo 'export PKG_CONFIG_PATH=\$PKG_CONFIG_PATH:#{node['gtk_pkgconfig_dir']}' >> /etc/profile)
+  not_if "grep -q #{node['gtk_pkgconfig_dir']} /etc/profile"
+end
+
+# FIXME latest Cairo (R package) binary
+# FIXME cairo-1.12.16-darwin13-static-pkgconfig.patch
+# FIXME http://r.research.att.com/libs/GTK_2.24.17-X11.pkg
+
+# FIXME protobuf
 
 # FIXME R_TEXI2DVICMD=/Users/biocbuild/BBS/utils/mactexi2dvi
 
@@ -334,8 +364,6 @@ end
 
 # FIXME - come back to Vienna RNA later
 
-__END__
-
 
 # Vienna RNA
 
@@ -343,16 +371,16 @@ remote_file "/tmp/#{node['vienna_rna_dir']}.tar.gz" do
   source node["vienna_rna_url"]
 end
 
-# commenting this out now as it fails to build.
-# however, it seems like this is not needed at the moment because
-# the RNAfold program is not actually called in an evaluted
-# vignette chunk/example/test in GeneGA
+execute "build ViennaRNA" do
+  command "tar zxf #{node['vienna_rna_dir']}.tar.gz && cd #{node['vienna_rna_dir']}/ && ./configure && make && make install"
+  cwd "/tmp"
+  not_if {File.exists? "/tmp/#{node['vienna_rna_dir']}/config.log"}
+end
 
-# execute "build ViennaRNA" do
-#   command "tar zxf #{node['vienna_rna_dir']}.tar.gz && cd #{node['vienna_rna_dir']}/ && ./configure && make && make install"
-#   cwd "/tmp"
-#   not_if {File.exists? "/tmp/#{node['vienna_rna_dir']}/config.log"}
-# end
+
+__END__
+
+
 
 # ensemblVEP
 

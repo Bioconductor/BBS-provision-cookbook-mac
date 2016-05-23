@@ -20,16 +20,34 @@ default['root_url'] = {dev: "https://s3.amazonaws.com/bioc-root-binary/mac-root-
 default['jags_url'] = "http://iweb.dl.sourceforge.net/project/mcmc-jags/JAGS/4.x/Mac%20OS%20X/JAGS-4.2.0.dmg"
 default['jags_dir'] = "JAGS-4.2.0"
 default['pkgconfig_url'] = "http://r.research.att.com/libs/pkg-config-0.25-darwin9-bin3.tar.gz"
-default['libsbml_url']  = "http://pilotfiber.dl.sourceforge.net/project/sbml/libsbml/5.13.0/stable/Mac%20OS%20X/libsbml-5.13.0-libxml2-macosx-elcapitan.dmg"
-default['libsbml_dir'] = "libsbml-5.13.0-libxml2"
-default['libsbml_packagename'] = 'libSBML-5.13.0-libxml2-elcapitan'
-default['vienna_rna_url'] = "https://www.tbi.univie.ac.at/RNA/download/package=viennarna-src-tbi&flavor=sourcecode&dist=1_8_x&arch=src&version=1.8.5"
-default['vienna_rna_dir'] = "ViennaRNA-1.8.5"
+default['libsbml_url']  = "http://iweb.dl.sourceforge.net/project/sbml/libsbml/5.10.2/stable/Mac%20OS%20X/libsbml-5.10.2-libxml2-macosx-mavericks.dmg"
+default['libsbml_dir'] = "libsbml-5.10.2-libxml2"
+default['libsbml_packagename'] = 'libSBML-5.10.2-libxml2-mavericks'
+default['vienna_rna_url'] = "https://www.tbi.univie.ac.at/RNA/download/package=viennarna-src-tbi&flavor=sourcecode&dist=2_2_x&arch=src&version=2.2.5"
+default['vienna_rna_dir'] = "ViennaRNA-2.2.5"
 default['vep_url'] = {dev: "https://codeload.github.com/Ensembl/ensembl-tools/zip/release/84",
   rel: "https://codeload.github.com/Ensembl/ensembl-tools/zip/release/84"}
 default['vep_dir'] = {dev: "ensembl-tools-release-84", rel: "ensembl-tools-release-84"}
 default['argtable_url'] = "http://prdownloads.sourceforge.net/argtable/argtable2-13.tar.gz"
 default['clustalo_url'] = "http://www.clustal.org/omega/clustal-omega-1.2.1.tar.gz"
+default['gtk_url'] = 'http://r.research.att.com/libs/GTK_2.24.17-X11.pkg'
+default['gtk_pkgconfig_dir'] = '/Library/Frameworks/GTK+.framework/Versions/2.24.X11/Resources/lib/pkgconfig/'
+default['simon_tars'] = [
+    ['cairo-1.12.16-darwin10-bin2.tar.gz', '/usr/local/lib/libcairo.la'],
+    ['fontconfig-2.11.1-darwin10-bin2.tar.gz','/usr/local/lib/pkgconfig/fontconfig.pc'],
+    ['freetype-2.5.3-darwin10-bin2.tar.gz', '/usr/local/include/freetype2/freetype.h'],
+    ['gfortran-4.8.2-darwin13.tar.bz2', '/usr/local/bin/gfortran'],
+    ['gsl-1.16-darwin13-x86_64.tar.gz', '/usr/local/bin/gsl-config'],
+    ['hdf5-1.8.14-darwin.13-x86_64.tar.gz', '/usr/local/bin/h5copy'],
+    ['jpeg-v8d-darwin9-bin4.tar.gz', '/usr/local/bin/cjpeg'],
+    ['libpng-1.5.8-darwin9-bin4.tar.gz', '/usr/local/bin/libpng-config'],
+    ['netcdf-4.1.3-darwin9-bin3.tar.gz', '/usr/local/bin/nc-config'],
+    ['pixman-0.32.4-darwin10-bin2.tar.gz', '/usr/local/lib/pkgconfig/pixman-1.pc'],
+    ['pkg-config-0.25-darwin9-bin3.tar.gz', '/usr/local/bin/pkg-config'],
+    ['protobuf-2.6.1-darwin.13-x86_64.tar.gz', '/usr/local/lib/libprotobuf.a'],
+    ['tiff-4.0.2-darwin9-bin4.tar.gz', '/usr/local/bin/tiffinfo'],
+    ['xz-5.0.5-darwin10-bin2.tar.gz', '/usr/local/bin/lzma']
+]
 # cron info
 
 def starhash(minute: '*', hour: '*', day: '*', month: '*', weekday: '*')
