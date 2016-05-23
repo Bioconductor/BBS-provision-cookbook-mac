@@ -311,22 +311,10 @@ end
 
 # FIXME - rsbml still does not build. contact mtr
 
-
+# FIXME - come back to Vienna RNA later
 
 __END__
 
-
-# libsbml
-
-remote_file "/tmp/#{node['libsbml_url'].split('/').last}" do
-  source node['libsbml_url']
-end
-
-execute "build libsbml" do
-  command "tar zxf #{node['libsbml_url'].split('/').last} && cd #{node['libsbml_dir']} && ./configure --enable-layout && make && make install"
-  cwd "/tmp"
-  not_if {File.exists? "/tmp/#{node['libsbml_dir']}/config.log"}
-end
 
 # Vienna RNA
 
