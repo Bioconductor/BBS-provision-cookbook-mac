@@ -53,6 +53,11 @@ default['simon_tars'] = [
     ['tiff-4.0.2-darwin9-bin4.tar.gz', '/usr/local/bin/tiffinfo'],
     ['xz-5.0.5-darwin10-bin2.tar.gz', '/usr/local/bin/lzma']
 ]
+default['pandoc_url'] = "https://github.com/jgm/pandoc/releases/download/1.17.0.2/pandoc-1.17.0.2-osx.pkg"
+default['java_url'] = "http://download.oracle.com/otn-pub/java/jdk/8u92-b14/jdk-8u92-macosx-x64.dmg"
+default['java_volume_dir'] = "JDK 8 Update 92" # this is also .pkg name
+default['java_installed_pkg_name'] = 'com.oracle.jdk8u92'
+default['java_home'] = "/Library/Java/JavaVirtualMachines/jdk1.8.0_92.jdk/Contents/Home/jre"
 # cron info
 
 def starhash(minute: '*', hour: '*', day: '*', month: '*', weekday: '*')

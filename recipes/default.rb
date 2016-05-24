@@ -424,6 +424,7 @@ end
 
 remote_file "/tmp/#{node['tabix_url'].split('/').last}" do
   source node['tabix_url']
+  # FIXME need not_if?
 end
 
 execute "install tabix" do
@@ -492,7 +493,36 @@ file "/Users/biocbuild/.ssh/id_rsa" do
     'outgoing_private_key')['value']
 end
 
+# pandoc
 
+remote_file "/tmp/#{node['pandoc_url'].split('/').last}" do
+  source node['pandoc_url']
+end
+
+execute "install pandoc" do
+  command "installer -pkg /tmp/#{node['pandoc_url'].split('/').last} -target /"
+  not_if {File.exists? "/usr/local/bin/pandoc"}
+end
+
+execute "download java" do
+  cwd "/tmp"
+  command %Q(curl -v -j -k -L -O -H "Cookie: oraclelicense=accept-securebackup-cookie" #{node['java_url']})
+  not_if {File.exists? "/tmp/#{node['java_url'].split('/').last}"}
+end
+
+
+dmg_package node['java_volume_dir'] do
+  file "/tmp/#{node['java_url'].split('/').last}"
+  volumes_dir node['java_volume_dir']
+  type 'pkg'
+  dmg_name node['java_volume_dir']
+  not_if "pkgutil --pkgs |grep -q #{node['java_installed_pkg_name']}"
+end
+
+execute "R CMD javareconf" do
+  command "R CMD javareconf"
+  not_if "R CMD config JAVA_HOME | grep -q #{node['java_home']}"
+end
 
 __END__
 
