@@ -442,60 +442,26 @@ execute "add shell_escape=t to texmf.cnf" do
 end
 
 
-
-
-__END__
-
-
-
-
-# TODO s:
-# cron - pointer in crontab to crond
-# ssh keys
-# latex - enablewrite18 and changes below
-# rgtk2? gtkmm?
-# in encrypted data bags:
-#  isr_login
-#  google login
-#  etc
-# the above go in cron envs as well
-
-
-# latex settings
-
-file "/etc/texmf/texmf.d/01bioc.cnf" do
-    content "shell_escape=t"
-    owner "root"
-    group "root"
-    mode "0644"
-end
-
-execute "update-texmf" do
-    action :run
-    user "root"
-    command "update-texmf"
-end
-
-# get stuff from encrypted data bags
-
-directory "/home/biocbuild/.BBS" do
+directory "/Users/biocbuild/.BBS" do
   owner "biocbuild"
   action :create
 end
 
-file "/home/biocbuild/.BBS/id_rsa" do
+file "/Users/biocbuild/.BBS/id_rsa" do
   owner "biocbuild"
   mode "0400"
   content Chef::EncryptedDataBagItem.load('BBS',
     'incoming_private_key')['value']
 end
 
+
+# safe to assume that ~/.ssh exists, I think...
 execute "add public key to authorized_keys" do
   user "biocbuild"
   command "echo #{Chef::EncryptedDataBagItem.load('BBS',
-    'incoming_public_key')['value']} >> /home/biocbuild/.ssh/authorized_keys"
+    'incoming_public_key')['value']} >> /Users/biocbuild/.ssh/authorized_keys"
   not_if %Q(grep -q "#{Chef::EncryptedDataBagItem.load('BBS',
-    'incoming_public_key')['value']}" /home/biocbuild/.ssh/authorized_keys)
+    'incoming_public_key')['value']}" /Users/biocbuild/.ssh/authorized_keys)
 end
 
 execute "add google api key to /etc/profile" do
@@ -519,12 +485,37 @@ execute "add ISR_pwd to /etc/profile" do
   not_if %Q(grep -q ISR_pwd /etc/profile)
 end
 
-file "/home/biocbuild/.ssh/id_rsa" do
+file "/Users/biocbuild/.ssh/id_rsa" do
   owner "biocbuild"
   mode "0400"
   content Chef::EncryptedDataBagItem.load('BBS',
     'outgoing_private_key')['value']
 end
+
+
+
+__END__
+
+
+
+
+# TODO s:
+# cron - pointer in crontab to crond
+# ssh keys
+# latex - enablewrite18 and changes below
+# rgtk2? gtkmm?
+# in encrypted data bags:
+#  isr_login
+#  google login
+#  etc
+# the above go in cron envs as well
+
+
+
+# get stuff from encrypted data bags
+
+
+
 
 # FIXME more stuff that needs to be in data bags:
 # * github oauth token for codecov
