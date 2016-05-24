@@ -377,19 +377,45 @@ execute "build ViennaRNA" do
   not_if {File.exists? "/tmp/#{node['vienna_rna_dir']}/config.log"}
 end
 
+# mysql
 
-__END__
+
+dmg_package node['mysql_volume_dir'] do
+  source node['mysql_url']
+  volumes_dir node['mysql_volume_dir']
+  type 'pkg'
+  dmg_name node['mysql_volume_dir']
+  not_if {File.exists? "/usr/local/mysql"}
+end
+
 
 
 
 # ensemblVEP
 
+
 remote_file "/tmp/#{node['vep_dir'][reldev]}.zip" do
   source node['vep_url'][reldev]
 end
 
+execute "install cpanimus" do
+  command "curl -L http://cpanmin.us | perl - --self-upgrade"
+  not_if {File.exists? "/usr/local/bin/cpanm"}
+end
+
+execute "install VEP prerequisites (File::Copy::Recursive)" do
+  command "cpanm File::Copy::Recursive"
+  not_if "perldoc File::Copy::Recursive | grep -q File::Copy::Recursive"
+end
+
+execute "install VEP prerequisites (DBD::mysql)" do
+  command "cpanm DBD::mysql"
+  not_if "perldoc DBD::mysql | grep -q DBD::mysql"
+end
+
+
 execute "install VEP" do
-  command "unzip #{node['vep_dir'][reldev]} && cd #{node['vep_dir'][reldev]}/scripts && mv variant_effect_predictor /usr/local/ && cd /usr/local/variant_effect_predictor && perl INSTALL.pl --NO_HTSLIB -a a"
+  command "unzip #{node['vep_dir'][reldev]} && cd #{node['vep_dir'][reldev]}/scripts && mv variant_effect_predictor /usr/local/ && cd /usr/local/variant_effect_predictor  && sed -i.bak 's/^  test/  #test/' INSTALL.pl && perl INSTALL.pl --NO_HTSLIB -a a"
   cwd "/tmp"
   not_if {File.exists? "/usr/local/variant_effect_predictor"}
 end
@@ -400,6 +426,21 @@ execute "add vep to path" do
   command "echo 'export PATH=$PATH:/usr/local/variant_effect_predictor' >> /etc/profile"
   not_if "grep -q variant_effect_predictor /etc/profile"
 end
+
+remote_file "/tmp/#{node['tabix_url'].split('/').last}" do
+  source node['tabix_url']
+end
+
+execute "install tabix" do
+  cwd "/tmp"
+  command "tar xjf #{node['tabix_url'].split('/').last} && cd #{node['tabix_dir']} && make && cp ./tabix /usr/local/bin/"
+  not_if {File.exists? "/usr/local/bin/tabix"}
+end
+
+__END__
+
+
+
 
 # TODO s:
 # cron - pointer in crontab to crond

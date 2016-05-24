@@ -28,6 +28,10 @@ default['vienna_rna_dir'] = "ViennaRNA-2.2.5"
 default['vep_url'] = {dev: "https://codeload.github.com/Ensembl/ensembl-tools/zip/release/84",
   rel: "https://codeload.github.com/Ensembl/ensembl-tools/zip/release/84"}
 default['vep_dir'] = {dev: "ensembl-tools-release-84", rel: "ensembl-tools-release-84"}
+default['mysql_url'] = 'http://cdn.mysql.com//Downloads/MySQL-5.7/mysql-5.7.12-osx10.11-x86_64.dmg'
+default['mysql_volume_dir'] = 'mysql-5.7.12-osx10.11-x86_64' # pkg name is the same
+default['tabix_url'] = 'http://pilotfiber.dl.sourceforge.net/project/samtools/tabix/tabix-0.2.6.tar.bz2'
+default['tabix_dir'] = 'tabix-0.2.6'
 default['argtable_url'] = "http://prdownloads.sourceforge.net/argtable/argtable2-13.tar.gz"
 default['clustalo_url'] = "http://www.clustal.org/omega/clustal-omega-1.2.1.tar.gz"
 default['gtk_url'] = 'http://r.research.att.com/libs/GTK_2.24.17-X11.pkg'
