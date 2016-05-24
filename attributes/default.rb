@@ -10,6 +10,7 @@ default['xquartz_url'] = "https://dl.bintray.com/xquartz/downloads/XQuartz-2.7.9
 default['xquartz_name'] = "XQuartz-2.7.9"
 default['mactex_url'] = 'http://mirrors.concertpass.com/tex-archive/systems/mac/mactex/mactex-20150613.pkg'
 default['mactex_checksum'] = 'c5f5b0'
+default['mactex_year'] = '2015'
 default['r_url'] = {rel: 'https://cran.rstudio.com/bin/macosx/R-3.3.0.pkg',
   dev: 'https://cran.rstudio.com/bin/macosx/R-3.3.0.pkg'}
 default['autoconf_url'] = 'https://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz'

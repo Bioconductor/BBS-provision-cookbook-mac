@@ -388,11 +388,7 @@ dmg_package node['mysql_volume_dir'] do
   not_if {File.exists? "/usr/local/mysql"}
 end
 
-
-
-
 # ensemblVEP
-
 
 remote_file "/tmp/#{node['vep_dir'][reldev]}.zip" do
   source node['vep_url'][reldev]
@@ -420,7 +416,6 @@ execute "install VEP" do
   not_if {File.exists? "/usr/local/variant_effect_predictor"}
 end
 
-# add /usr/local/variant_effect_predictor to path
 
 execute "add vep to path" do
   command "echo 'export PATH=$PATH:/usr/local/variant_effect_predictor' >> /etc/profile"
@@ -436,6 +431,18 @@ execute "install tabix" do
   command "tar xjf #{node['tabix_url'].split('/').last} && cd #{node['tabix_dir']} && make && cp ./tabix /usr/local/bin/"
   not_if {File.exists? "/usr/local/bin/tabix"}
 end
+
+# latex settings
+
+
+execute "add shell_escape=t to texmf.cnf" do
+  command "echo 'shell_escape = t' >> texmf.cnf && /Library/TeX/texbin/texhash"
+  cwd "/usr/local/texlive/#{node['mactex_year']}"
+  not_if "grep -q shell_escape /usr/local/texlive/#{node['mactex_year']}/texmf.cnf"
+end
+
+
+
 
 __END__
 
