@@ -58,6 +58,11 @@ default['java_url'] = "http://download.oracle.com/otn-pub/java/jdk/8u92-b14/jdk-
 default['java_volume_dir'] = "JDK 8 Update 92" # this is also .pkg name
 default['java_installed_pkg_name'] = 'com.oracle.jdk8u92'
 default['java_home'] = "/Library/Java/JavaVirtualMachines/jdk1.8.0_92.jdk/Contents/Home/jre"
+default['openbabel_url'] = 'https://sourceforge.net/projects/openbabel/files/openbabel/2.3.1/OpenBabel-2.3.1.mac.zip/download'
+default['openbabel_zipname'] = 'OpenBabel-2.3.1.mac.zip'
+default['openbabel_dir'] = 'Open Babel 2.3.1'
+default['openbabel_pkg'] = 'OpenBabel.pkg'
+default['imagemagick_url'] = 'https://s3.amazonaws.com/mac-provisioning/ImageMagick-6.8.8-6.pkg'
 # cron info
 
 def starhash(minute: '*', hour: '*', day: '*', month: '*', weekday: '*')

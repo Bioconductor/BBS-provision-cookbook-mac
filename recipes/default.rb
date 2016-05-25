@@ -604,6 +604,34 @@ end
 
 # FIXME no experiment data builds for now?
 
+remote_file "/tmp/#{node['openbabel_zipname']}" do
+  source node['openbabel_url']
+end
+
+execute "unzip openbabel" do
+  command "unzip #{node['openbabel_zipname']}"
+  cwd "/tmp"
+  not_if {File.exists? "/tmp/#{node['openbabel_dir']}"}
+end
+
+execute "install openbabel" do
+  command %Q(installer -pkg "/tmp/#{node['openbabel_dir']}/#{node['openbabel_pkg']}" -target /)
+  not_if "pkgutil --pkgs |grep -q net.sourceforge.openbabel"
+end
+
+remote_file "/tmp/#{node['imagemagick_url'].split('/').last}" do
+  source node['imagemagick_url']
+end
+
+execute "install imagemagick" do
+  command "installer -pkg /tmp/#{node['imagemagick_url'].split('/').last} -target /"
+  not_if "pkgutil --pkgs | grep -q com.cactuslab.imagemagick.pkg"
+end
+
+execute "add imagemagick to path" do
+  command %Q(echo 'export PATH=\$PATH:/opt/ImageMagick/bin' >> /etc/profile)
+  not_if "grep -q ImageMagick /etc/profile"
+end
 
 __END__
 
