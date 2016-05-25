@@ -395,7 +395,14 @@ remote_file "/tmp/#{node['vep_dir'][reldev]}.zip" do
 end
 
 execute "install cpanimus" do
-  command "curl -L http://cpanmin.us | perl - --self-upgrade"
+  # this way of installing cpanimus (the recommended way) does
+  # not work on all systems:
+  # command "curl -L http://cpanmin.us | perl - --self-upgrade"
+  # The following way seems to work everywhere, but the caveat
+  # at https://github.com/miyagawa/cpanminus#downloading-the-standalone-executable
+  # is to upgrade manually.
+  command "curl -L https://cpanmin.us/ -o cpanm && chmod +x cpanm"
+  cwd "/usr/local/bin"
   not_if {File.exists? "/usr/local/bin/cpanm"}
 end
 
