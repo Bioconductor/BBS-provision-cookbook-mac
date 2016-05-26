@@ -297,7 +297,6 @@ dmg_package node['jags_dir'] do
 end
 
 
-# FIXME don't install libsbml until we have sorted things out so rsbml builds
 
 
 dmg_package node['libsbml_packagename'] do
@@ -350,19 +349,32 @@ execute "add GTK to PKG_CONFIG_PATH" do
 end
 
 # FIXME latest Cairo (R package) binary
+
+execute "install Cairo pkg" do
+  user "biocbuild"
+  command %Q(echo "BiocInstaller::biocLite('Cairo')" | R -q --slave)
+  not_if {File.exists? "/Library/Frameworks/R.framework/Versions/Current/Resources/library/Cairo"}
+end
+
+execute "install tkrplot from source" do
+  user "biocbuild"
+  command %Q{echo "BiocInstaller::biocLite('tkrplot', type='source', INSTALL_opts='--no-test-load');packageVersion('tkrplot')" | R -q --slave}
+  environment({'TMP' => '/tmp', 'TMPDIR' => '/tmp', 'TEMP' => '/tmp'})
+  not_if {File.exists? "/Library/Frameworks/R.framework/Versions/Current/Resources/library/tkrplot"}
+end
+
+
 # FIXME cairo-1.12.16-darwin13-static-pkgconfig.patch
 # FIXME http://r.research.att.com/libs/GTK_2.24.17-X11.pkg
 
 # FIXME protobuf
 
 # FIXME R_TEXI2DVICMD=/Users/biocbuild/BBS/utils/mactexi2dvi
+execute "set up R_TEXI2DVICMD" do
+  command %Q(echo 'export R_TEXI2DVICMD=/Users/biocbuild/BBS/utils/mactexi2dvi' >> /etc/profile)
+  not_if "grep -q R_TEXI2DVICMD /etc/profile"
+end
 
-# FIXME - gfortran
-
-# FIXME - rsbml still does not build. contact mtr
-# FIXME - see BBS/Docs about necessary tweaks to libsbml.dylib, and other stuff you need to do
-
-# FIXME - come back to Vienna RNA later
 
 
 # Vienna RNA
@@ -633,6 +645,16 @@ execute "add imagemagick to path" do
   not_if "grep -q ImageMagick /etc/profile"
 end
 
+remote_file "/tmp/#{node['graphviz_url'].split('/').last}" do
+  source node['graphviz_url']
+end
+
+execute "install graphviz" do
+  command "installer -pkg /tmp/#{node['graphviz_url'].split('/').last} -target /"
+  not_if "pkgutil --pkgs|grep -q com.att.graphviz.cli.pkg"
+end
+
+
 __END__
 
 
@@ -643,11 +665,6 @@ __END__
 # ssh keys
 # latex - enablewrite18 and changes below
 # rgtk2? gtkmm?
-# in encrypted data bags:
-#  isr_login
-#  google login
-#  etc
-# the above go in cron envs as well
 
 
 

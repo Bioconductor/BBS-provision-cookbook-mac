@@ -63,6 +63,8 @@ default['openbabel_zipname'] = 'OpenBabel-2.3.1.mac.zip'
 default['openbabel_dir'] = 'Open Babel 2.3.1'
 default['openbabel_pkg'] = 'OpenBabel.pkg'
 default['imagemagick_url'] = 'https://s3.amazonaws.com/mac-provisioning/ImageMagick-6.8.8-6.pkg'
+default['graphviz_url'] = 'http://www.graphviz.org/pub/graphviz/stable/macos/mountainlion/graphviz-2.36.0.pkg'
+
 # cron info
 
 def starhash(minute: '*', hour: '*', day: '*', month: '*', weekday: '*')
