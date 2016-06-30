@@ -149,7 +149,7 @@ remote_file "/tmp/#{clustalo_tarball}" do
 end
 
 execute "build clustalo" do
-  command "tar zxf #{clustalo_tarball} && cd #{clustalo_dir} && ./configure && make && make install"
+  command "tar zxf #{clustalo_tarball} && cd #{clustalo_dir} && ./configure CFLAGS='-I/usr/local/include/' LDFLAGS='-L/usr/local/lib/' && make && make install"
   not_if "which clustalo | grep -q clustalo"
   cwd "/tmp"
 end
