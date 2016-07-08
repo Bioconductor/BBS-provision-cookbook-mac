@@ -115,7 +115,7 @@ easy_install_package "pip"
 
 execute "install jupyter" do
   command "pip install jupyter"
-  not_if "which jupyter | grep -q jupyter"
+  not_if "which -s jupyter"
 end
 
 execute "install ipython" do
@@ -150,35 +150,22 @@ end
 
 execute "build clustalo" do
   command "tar zxf #{clustalo_tarball} && cd #{clustalo_dir} && ./configure CFLAGS='-I/usr/local/include/' LDFLAGS='-L/usr/local/lib/' && make && make install"
-  not_if "which clustalo | grep -q clustalo"
+  not_if "which -s clustalo"
   cwd "/tmp"
 end
 
 #require 'dmg'
 include_recipe 'dmg'
 
-dmg_package "Xquartz" do
+dmg_package "XQuartz" do
   source node['xquartz_url']
-  volumes_dir node['xquartz_name']
-  type 'pkg'
-  not_if {File.exists? "/Applications/Utilities/XQuartz.app"}
+  package_id "org.macosforge.xquartz.pkg"# idempotence check based on pkgutil
 end
 
-# package node['mactex_url']
-
-remote_file "/tmp/#{node['mactex_url'].split('/').last}" do
+dmg_package "MacTeX #{node['mactex_year']}" do
   source node['mactex_url']
-  #checksum node['mactex_checksum']
-  use_conditional_get true
-  use_etag true
-  use_last_modified true
-  # why is the not_if necessary?
-  not_if {File.exists? "/tmp/#{node['mactex_url'].split('/').last}"}
-end
-
-execute "install MacTex" do
-  command "sudo installer -pkg /tmp/#{node['mactex_url'].split('/').last} -target /"
-  not_if {File.exists? "/usr/texbin/pdflatex"}
+  type "pkg"
+  package_id "org.tug.mactex.texlive#{node['mactex_year']}"
 end
 
 git "/Users/biocbuild/BBS" do
@@ -192,6 +179,13 @@ execute "build chown-rootadmin" do
   command "gcc chown-rootadmin.c -o chown-rootadmin &&  chown root:admin chown-rootadmin && sudo chmod 4750 chown-rootadmin"
   not_if {File.exists? "/Users/biocbuild/BBS/utils/chown-rootadmin"}
 end
+
+# FIXME: the 'not_if' guard doesn't seem to work here
+#dmg_package "R" do
+#  source node['r_url'][reldev]
+#  type "pkg"
+#  not_if {%x[ RScript -e 'cat(paste(R.version$major, R.version$minor, sep="."))' ]==node['r_version_string'][reldev]}
+#end
 
 remote_file "/tmp/#{node['r_url'][reldev].split('/').last}" do
     source node['r_url'][reldev]
@@ -236,7 +230,7 @@ end
 execute "install autoconf" do
   command "tar zxf #{autoconf_tarball} && cd #{autoconf_dir} && ./configure && make && make install"
   cwd "/tmp"
-  not_if "which autoconf | grep -q autoconf"
+  not_if "which -s autoconf"
 end
 
 automake_tarball = node['automake_url'].split('/').last
@@ -249,7 +243,7 @@ end
 execute "install automake" do
   command "tar zxf #{automake_tarball} && cd #{automake_dir} && ./configure && make && make install"
   cwd "/tmp"
-  not_if "which automake | grep -q automake"
+  not_if "which -s automake"
 end
 
 

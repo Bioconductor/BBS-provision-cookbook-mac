@@ -7,18 +7,16 @@ default['time_zone'] = "America/New_York"
 default['bbs_repos'] = 'https://github.com/Bioconductor/BBS'
 default['bbs_branch'] = 'feature/linux_builders_at_ub'
 default['xquartz_url'] = "https://dl.bintray.com/xquartz/downloads/XQuartz-2.7.9.dmg"
-default['xquartz_name'] = "XQuartz-2.7.9"
-default['mactex_url'] = 'http://mirrors.concertpass.com/tex-archive/systems/mac/mactex/mactex-20150613.pkg'
-default['mactex_checksum'] = 'c5f5b0'
-default['mactex_year'] = '2015'
-default['r_url'] = {rel: 'https://cran.rstudio.com/bin/macosx/R-3.3.0.pkg',
-  dev: 'https://cran.rstudio.com/bin/macosx/R-3.3.0.pkg'}
+default['mactex_url'] = 'http://tug.org/cgi-bin/mactex-download/MacTeX.pkg'
+default['mactex_year'] = '2016'
+default['r_url'] = {rel: 'https://cran.rstudio.com/bin/macosx/R-3.3.1.pkg',
+  dev: 'https://cran.rstudio.com/bin/macosx/R-3.3.1.pkg'}
+default['r_version_string'] = {rel: '3.3.1', dev: '3.3.1'}
 default['autoconf_url'] = 'https://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.gz'
 default['automake_url'] = 'https://ftp.gnu.org/gnu/automake/automake-1.14.1.tar.gz'
-default['r_src_dir'] = {rel: 'R-3.3.0', dev: 'R-3.3.0'}
 default['root_url'] = {dev: "https://s3.amazonaws.com/bioc-root-binary/mac-root-binary.tar.gz",
   rel: "https://s3.amazonaws.com/bioc-root-binary/mac-root-binary.tar.gz"}
-default['jags_url'] = "http://iweb.dl.sourceforge.net/project/mcmc-jags/JAGS/4.x/Mac%20OS%20X/JAGS-4.2.0.dmg"
+default['jags_url'] = "http://ufpr.dl.sourceforge.net/project/mcmc-jags/JAGS/4.x/Mac%20OS%20X/JAGS-4.2.0.dmg"
 default['jags_dir'] = "JAGS-4.2.0"
 default['pkgconfig_url'] = "http://r.research.att.com/libs/pkg-config-0.25-darwin9-bin3.tar.gz"
 default['libsbml_url']  = "http://iweb.dl.sourceforge.net/project/sbml/libsbml/5.10.2/stable/Mac%20OS%20X/libsbml-5.10.2-libxml2-macosx-mavericks.dmg"
